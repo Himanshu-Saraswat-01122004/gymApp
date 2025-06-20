@@ -6,7 +6,7 @@ import axios, { AxiosError } from "axios";
 import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
 import { signIn } from "next-auth/react";
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaHome } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import ParticlesComponent from "@/components/ParticlesComponent";
 
@@ -71,8 +71,8 @@ export default function SignupPage() {
       </div>
       <div className="relative z-30 min-h-screen flex items-center justify-center p-4">
         <Toaster position="top-center" reverseOrder={false} />
-        <motion.div
-          className="w-full max-w-md p-8 space-y-6 bg-black/50 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-700"
+                <motion.div
+          className="relative w-full max-w-md p-8 space-y-6 bg-black/50 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-700"
           initial={{ opacity: 0, y: -50 }}
           animate={{
             opacity: 1,
@@ -92,6 +92,16 @@ export default function SignupPage() {
             },
           }}
         >
+                    <Link href="/" passHref>
+            <motion.a
+              className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+              aria-label="Go to Home"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <FaHome size={24} />
+            </motion.a>
+          </Link>
           <motion.div variants={itemVariants} className="text-center">
             <h1 className="text-4xl font-bold tracking-tight">Create an Account</h1>
             <p className="text-gray-400 mt-2">Join us and start your fitness journey</p>

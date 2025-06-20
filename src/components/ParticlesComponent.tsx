@@ -70,6 +70,9 @@ const ParticlesComponent = (props: { id: string }) => {
           density: {
             enable: true,
           },
+          zIndex: {
+            value: -10,
+          },
           value: 120, // Increased number of particles
         },
         opacity: {

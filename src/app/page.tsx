@@ -9,13 +9,12 @@ export default function LandingPage() {
   return (
     <div className="bg-gray-900 text-white">
       {/* Hero Section */}
-      <div className="relative flex flex-col items-center justify-center min-h-[calc(100vh-80px)] text-white overflow-hidden">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image with Ken Burns Effect */}
-        <motion.div
-          className="absolute inset-0 z-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=2070&auto=format&fit=crop')",
-          }}
+        <motion.img
+          src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=2070&auto=format&fit=crop"
+          alt="Gym background"
+          className="absolute inset-0 w-full h-full object-cover"
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
           transition={{ duration: 15, ease: "easeInOut", repeat: Infinity, repeatType: 'reverse' }}
@@ -25,7 +24,9 @@ export default function LandingPage() {
           <ParticlesComponent id="tsparticles-hero" />
         </div>
         {/* Overlay */}
-        <div className="absolute inset-0 z-20 bg-black/60" />
+        <div className="absolute inset-0 bg-black/60 z-20"></div>
+        {/* Bottom Gradient Overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-gray-900 to-transparent z-20"></div>
 
         {/* Content */}
         <main className="relative z-30 flex flex-col items-center justify-center w-full flex-1 px-4 sm:px-20 text-center">
@@ -64,7 +65,7 @@ export default function LandingPage() {
             </Link>
           </motion.div>
         </main>
-      </div>
+      </section>
 
       {/* Features Section */}
       <section className="py-20 bg-gray-900">

@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema({
   height: { type: Number },
   weight: { type: Number },
   goals: { type: String },
+  benchPress: { type: String },
+  squat: { type: String },
+  deadlift: { type: String },
   membershipType: { type: String },
   createdAt: { type: Date, default: Date.now },
 });

@@ -1,15 +1,16 @@
-import dbConnect from '@/lib/dbConnect';
-import User from '@/models/User';
+import clientPromise from '@/lib/mongoClient';
 import { NextRequest, NextResponse } from 'next/server';
 import bcryptjs from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
     const { name, email, password } = await req.json();
 
-    const existingUser = await User.findOne({ email });
+    const client = await clientPromise;
+    const db = client.db('gymApp'); // Explicitly select the 'gymApp' database
+    const usersCollection = db.collection('users');
+
+    const existingUser = await usersCollection.findOne({ email });
 
     if (existingUser) {
       return NextResponse.json(
@@ -21,13 +22,15 @@ export async function POST(req: NextRequest) {
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
 
-    const newUser = new User({
+    await usersCollection.insertOne({
       name,
       email,
       password: hashedPassword,
+      emailVerified: null, // Align with NextAuth schema
+      image: null, // Align with NextAuth schema
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
-
-    await newUser.save();
 
     return NextResponse.json(
       { message: 'User created successfully' },

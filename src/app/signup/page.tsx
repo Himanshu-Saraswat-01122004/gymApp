@@ -1,11 +1,13 @@
 "use client";
+"use client";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import { motion } from "framer-motion";
 import { Toaster, toast } from "react-hot-toast";
-import { FaUser, FaEnvelope, FaLock, FaFacebook } from "react-icons/fa";
+import { signIn } from "next-auth/react";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
 export default function SignupPage() {
@@ -15,12 +17,30 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSignup = async () => {
     try {
+      // Step 1: Create the user account
       await axios.post("/api/auth/signup", user);
-      toast.success("Account created successfully! Redirecting to login...");
-      setTimeout(() => router.push("/login"), 2000);
+      toast.success("Account created successfully! Logging you in...");
+
+      // Step 2: Automatically sign in the user
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: user.email,
+        password: user.password,
+      });
+
+      if (result?.error) {
+        // This might happen if there's a delay or issue, redirect to login as a fallback
+        toast.error("Login failed after signup. Please log in manually.");
+        router.push('/login');
+      } else {
+        // Step 3: Redirect to the home page on successful login
+        toast.success("Logged in successfully!");
+        router.push('/home');
+      }
     } catch (error) {
       const axiosError = error as AxiosError<{ message: string }>;
       if (axiosError.response && axiosError.response.status === 400) {
@@ -38,25 +58,43 @@ export default function SignupPage() {
     backgroundPosition: 'center',
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+  };
+
   return (
     <div style={backgroundStyle} className="flex items-center justify-center min-h-screen text-white">
       <div className="absolute inset-0 bg-black opacity-60"></div>
       <Toaster position="top-center" reverseOrder={false} />
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md p-8 space-y-6 bg-gray-800/80 backdrop-blur-sm rounded-lg shadow-lg"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 w-full max-w-md p-8 space-y-6 bg-black/50 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-700"
       >
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">Create an Account</h1>
-          <p className="text-gray-400">Join us and start your fitness journey</p>
-        </div>
-        <form onSubmit={(e) => { e.preventDefault(); onSignup(); }} className="space-y-4">
+        <motion.div variants={itemVariants} className="text-center">
+          <h1 className="text-4xl font-bold tracking-tight">Create an Account</h1>
+          <p className="text-gray-400 mt-2">Join us and start your fitness journey</p>
+        </motion.div>
+
+        <motion.form 
+          variants={itemVariants}
+          onSubmit={(e) => { e.preventDefault(); onSignup(); }}
+          className="space-y-5"
+        >
           <div className="relative">
-            <FaUser className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+            <FaUser className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
             <input
-              className="w-full p-3 pl-10 text-gray-900 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 pl-12 bg-gray-800/60 border border-gray-700 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               id="name"
               type="text"
               value={user.name}
@@ -66,9 +104,9 @@ export default function SignupPage() {
             />
           </div>
           <div className="relative">
-            <FaEnvelope className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+            <FaEnvelope className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
             <input
-              className="w-full p-3 pl-10 text-gray-900 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 pl-12 bg-gray-800/60 border border-gray-700 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               id="email"
               type="email"
               value={user.email}
@@ -78,45 +116,56 @@ export default function SignupPage() {
             />
           </div>
           <div className="relative">
-            <FaLock className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" />
+            <FaLock className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
             <input
-              className="w-full p-3 pl-10 text-gray-900 bg-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 pl-12 pr-12 bg-gray-800/60 border border-gray-700 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={user.password}
               onChange={(e) => setUser({ ...user, password: e.target.value })}
               placeholder="Password"
               required
             />
+            <div 
+              className="absolute top-1/2 right-4 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-white transition-colors"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+            </div>
           </div>
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.05, boxShadow: '0px 0px 15px rgba(168, 85, 247, 0.6)' }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full p-3 font-bold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
+            className="w-full p-3 font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 transition-all duration-300"
           >
             Create Account
           </motion.button>
-        </form>
-        <div className="flex items-center my-4">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <span className="mx-4 text-gray-400 text-sm">OR CONTINUE WITH</span>
-          <div className="flex-grow border-t border-gray-600"></div>
-        </div>
-        <div className="space-y-4">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full flex items-center justify-center p-3 font-semibold text-white bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
-                <FcGoogle size={22} className="mr-2" /> Continue with Google
-            </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full flex items-center justify-center p-3 font-semibold text-white bg-blue-800 rounded-lg hover:bg-blue-700 transition-colors">
-                <FaFacebook size={22} className="mr-2" /> Continue with Facebook
-            </motion.button>
-        </div>
-        <div className="text-center text-gray-400">
+        </motion.form>
+
+        <motion.div variants={itemVariants} className="flex items-center">
+          <div className="flex-grow border-t border-gray-700"></div>
+          <span className="mx-4 text-gray-500 text-sm font-medium">OR</span>
+          <div className="flex-grow border-t border-gray-700"></div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <motion.button 
+              onClick={() => signIn('google', { callbackUrl: '/home' })}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }} 
+              className="w-full flex items-center justify-center p-3 font-semibold text-white bg-gray-800 rounded-lg hover:bg-gray-700 border border-gray-700 transition-colors"
+          >
+              <FcGoogle size={22} className="mr-3" /> Continue with Google
+          </motion.button>
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="text-center text-gray-400">
           Already have an account?{" "}
-          <Link href="/login" className="font-bold text-blue-500 hover:underline">
+          <Link href="/login" className="font-bold text-purple-400 hover:underline hover:text-purple-300 transition-colors">
             Log in
           </Link>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );

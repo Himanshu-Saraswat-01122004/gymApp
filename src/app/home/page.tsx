@@ -1,51 +1,38 @@
 "use client";
-import axios from "axios";
-import Link from "next/link";
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-
-interface UserData {
-  _id: string;
-  name: string;
-  email: string;
-}
+import React, { useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
 
   useEffect(() => {
-    const getUserDetails = async () => {
-      try {
-        const res = await axios.get('/api/auth/me');
-        setUser(res.data.data);
-      } catch (error: any) {
-        console.log(error.message);
-        // Optionally, redirect to login if token is invalid or expired
-        router.push('/login');
-      }
-    };
-
-    getUserDetails();
-  }, [router]);
-
-  const logout = async () => {
-    try {
-      await axios.get('/api/auth/logout');
+    if (status === 'unauthenticated') {
       router.push('/login');
-    } catch (error: any) {
-      console.log(error.message);
     }
-  };
+  }, [status, router]);
+
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+        <p className="text-2xl">Loading...</p>
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return null; // or a redirect component, but useEffect handles it
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
       <div className="w-full max-w-4xl">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Welcome, {user ? user.name : 'User'}!</h1>
+          <h1 className="text-4xl font-bold">Welcome, {session?.user?.name || 'User'}!</h1>
           <button
-            onClick={logout}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
           >
             Logout
           </button>

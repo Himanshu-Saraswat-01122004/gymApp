@@ -22,6 +22,7 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      dbName: 'gymApp', // Force the DB name to be correct
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {

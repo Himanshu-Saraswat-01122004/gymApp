@@ -54,14 +54,14 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Link href="/home" passHref>
-              <motion.a
-                className="px-8 py-4 font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:from-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 transition-all duration-300 flex items-center gap-2"
+            <Link href="/home">
+              <motion.div
+                className="px-8 py-4 font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:from-purple-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 transition-all duration-300 flex items-center gap-2 cursor-pointer"
                 whileHover={{ scale: 1.05, boxShadow: '0px 0px 15px rgba(168, 85, 247, 0.6)' }}
                 whileTap={{ scale: 0.95 }}
               >
                 Get Started <FaArrowRight />
-              </motion.a>
+              </motion.div>
             </Link>
           </motion.div>
         </main>

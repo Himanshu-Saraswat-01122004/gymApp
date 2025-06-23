@@ -9,6 +9,7 @@ import { HiOutlineSun, HiOutlineCloud, HiOutlineBell } from 'react-icons/hi';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale } from 'chart.js';
 import axios from 'axios';
+import BMIDashboard from '@/components/BMIDashboard';
 
 export default function HomePage() {
   const { data: session, status } = useSession();
@@ -142,6 +143,17 @@ export default function HomePage() {
                 <div>
                   <p className="text-sm text-gray-400">Level</p>
                   <h3 className="text-2xl font-bold">5</h3>
+                </div>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                onClick={() => router.push('/dashboard')}
+                className="bg-gray-800 p-4 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-purple-700 transition-colors"
+              >
+                <FaChartLine className="text-2xl text-purple-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Track BMI</p>
+                  <h3 className="text-2xl font-bold">BMI</h3>
                 </div>
               </motion.div>
             </div>

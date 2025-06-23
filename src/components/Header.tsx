@@ -66,6 +66,7 @@ const Header = () => {
                   >
                     <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Dashboard</Link>
                     <Link href="/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Profile</Link>
+                    <Link href="/home" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Home</Link>
                     <button 
                       onClick={() => signOut({ callbackUrl: '/' })} 
                       className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors"

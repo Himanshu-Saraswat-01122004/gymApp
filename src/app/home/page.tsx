@@ -1,498 +1,269 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { FaDumbbell, FaChartLine, FaUtensils, FaBell } from 'react-icons/fa';
-import { HiOutlineCalendar, HiOutlineUserGroup, HiOutlineFire } from 'react-icons/hi';
-import { HiOutlineSun, HiOutlineCloud, HiOutlineBell } from 'react-icons/hi';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale } from 'chart.js';
-import axios from 'axios';
-import BMIDashboard from '@/components/BMIDashboard';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FaDumbbell, 
+  FaFire, 
+  FaTrophy, 
+  FaUsers, 
+  FaChartLine, 
+  FaCalendarAlt, 
+  FaPlay,
+  FaArrowRight,
+  FaClock,
+  FaHeart,
+  FaBullseye,
+  FaBolt,
+  FaUserFriends,
+  FaStar,
+  FaCheckCircle
+} from 'react-icons/fa';
+
+// Quick Stats Card Component
+const StatsCard = ({ icon: Icon, title, value, color, bgColor }: {
+  icon: React.ElementType;
+  title: string;
+  value: string;
+  color: string;
+  bgColor: string;
+}) => (
+  <motion.div
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className={`${bgColor} p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-white/20 transition-all duration-300 group cursor-pointer`}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-400 text-sm font-medium">{title}</p>
+        <p className={`text-3xl font-bold ${color} mt-1`}>{value}</p>
+      </div>
+      <div className={`p-4 ${bgColor} rounded-xl group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className={`text-2xl ${color}`} />
+      </div>
+    </div>
+  </motion.div>
+);
+
+// Feature Card Component
+const FeatureCard = ({ icon: Icon, title, description, color }: {
+  icon: React.ElementType;
+  title: string;
+  description: string;
+  color: string;
+}) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 p-8 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-purple-400/30 transition-all duration-300 group"
+  >
+    <div className={`p-4 ${color} rounded-xl w-fit mb-6 group-hover:scale-110 transition-transform duration-300`}>
+      <Icon className="text-2xl text-white" />
+    </div>
+    <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+    <p className="text-gray-400 leading-relaxed">{description}</p>
+  </motion.div>
+);
+
+// Workout Category Card
+const WorkoutCard = ({ title, exercises, color, bgGradient }: {
+  title: string;
+  exercises: string;
+  color: string;
+  bgGradient: string;
+}) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className={`${bgGradient} p-6 rounded-2xl border border-white/10 backdrop-blur-sm hover:border-white/20 transition-all duration-300 group cursor-pointer`}
+  >
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="text-xl font-bold text-white">{title}</h3>
+      <FaPlay className={`${color} group-hover:scale-110 transition-transform duration-300`} />
+    </div>
+    <p className="text-gray-300 text-sm">{exercises} exercises</p>
+    <div className="mt-4 flex items-center text-purple-300 text-sm font-medium">
+      <span>Start Workout</span>
+      <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+    </div>
+  </motion.div>
+);
+
+// Achievement Badge Component
+const AchievementBadge = ({ icon: Icon, title, progress, color }: {
+  icon: React.ElementType;
+  title: string;
+  progress: number;
+  color: string;
+}) => (
+  <motion.div
+    whileHover={{ scale: 1.05 }}
+    className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 p-4 rounded-xl border border-white/10 backdrop-blur-sm hover:border-purple-400/30 transition-all duration-300 group"
+  >
+    <div className="flex items-center gap-3 mb-3">
+      <div className={`p-2 ${color} rounded-lg group-hover:scale-110 transition-transform duration-300`}>
+        <Icon className="text-white text-lg" />
+      </div>
+      <span className="text-white font-medium text-sm">{title}</span>
+    </div>
+    <div className="w-full bg-gray-700/50 rounded-full h-2">
+      <motion.div
+        className={`h-2 rounded-full ${color.replace('bg-', 'bg-gradient-to-r from-').replace('/20', '/60')} to-purple-500`}
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 1, delay: 0.5 }}
+      />
+    </div>
+    <p className="text-xs text-gray-400 mt-1">{progress}% Complete</p>
+  </motion.div>
+);
 
 export default function HomePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [motivationQuote, setMotivationQuote] = useState('');
-  const [streak, setStreak] = useState(15);
-  const [weather, setWeather] = useState({
-    icon: 'sunny',
-    temperature: 25,
-    condition: 'Sunny'
-  });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Initialize Chart.js
   useEffect(() => {
-    ChartJS.register(
-      LineController,
-      LineElement,
-      PointElement,
-      LinearScale,
-      Title,
-      CategoryScale
-    );
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
-  const progressOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Progress Over Time',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  } as const;
-
-  const progressData = {
-    labels: ['1M', '2M', '3M', '4M', '5M', '6M', '7M'],
-    datasets: [
-      {
-        label: 'Weight (kg)',
-        data: [65, 63, 62, 61, 60, 59, 58],
-        borderColor: '#3B82F6',
-        tension: 0.4,
-      },
-      {
-        label: 'BMI',
-        data: [25, 24.5, 24, 23.5, 23, 22.5, 22],
-        borderColor: '#10B981',
-        tension: 0.4,
-      },
-    ],
-  };
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-    
-    // Change quote every 5 seconds
-    const interval = setInterval(() => {
-      const quotes = [
-        "The only bad workout is the one that didn't happen.",
-        "Sweat is just fat crying.",
-        "The pain you feel today will be the strength you feel tomorrow.",
-        "Train insane or remain the same."
-      ];
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      setMotivationQuote(randomQuote);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [status, router]);
-
   if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <div className="text-4xl font-bold mb-4">Welcome to Your Fitness Journey</div>
-          <div className="text-xl text-gray-400">Loading your personalized dashboard...</div>
-          <div className="mt-4">
-            <div className="w-16 h-16 border-4 border-white rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <div className="text-center">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-purple-500 mx-auto"></div>
+            <div className="animate-ping absolute inset-0 rounded-full h-20 w-20 border-4 border-purple-300 opacity-20"></div>
           </div>
-        </motion.div>
+          <p className="text-white text-xl mt-6 font-medium">Loading your fitness journey...</p>
+        </div>
       </div>
     );
   }
 
-  if (status === 'unauthenticated') {
-    return null;
-  }
+  const firstName = session?.user?.name?.split(' ')[0] || 'Athlete';
+  const currentHour = currentTime.getHours();
+  const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 18 ? 'Good Afternoon' : 'Good Evening';
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white p-4">
-      <div className="w-full max-w-7xl">
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-5xl font-bold mb-2">Welcome, {session?.user?.name || 'User'}!</h1>
-          <p className="text-xl text-gray-400">Your Personal Fitness Dashboard</p>
-          <div className="mt-8">
-            <div className="flex gap-4 justify-center">
-              <motion.div
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+      {/* Hero Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="relative overflow-hidden"
+      >
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,_white_1px,_transparent_0)] bg-[length:40px_40px]"></div>
+        </div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-16">
+          <div className="text-center mb-16">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="inline-block p-3 bg-purple-500/20 rounded-full mb-6"
+            >
+              <FaDumbbell className="text-4xl text-purple-400" />
+            </motion.div>
+            
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-6xl md:text-7xl font-bold mb-6"
+            >
+              <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                {greeting},
+              </span>
+              <br />
+              <span className="text-white">{firstName}!</span>
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
+            >
+              Ready to crush your fitness goals? Let's make today count with an amazing workout session!
+            </motion.p>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-col md:flex-row items-center justify-center gap-4"
+            >
+              <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 p-4 rounded-lg flex items-center gap-3"
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 px-8 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-purple-500/25"
               >
-                <HiOutlineCalendar className="text-2xl" />
-                <div>
-                  <p className="text-sm text-gray-400">Current Streak</p>
-                  <h3 className="text-2xl font-bold">{streak} days</h3>
-                </div>
-              </motion.div>
-              <motion.div
+                <FaPlay /> Start Today's Workout
+              </motion.button>
+              
+              <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="bg-gray-800 p-4 rounded-lg flex items-center gap-3"
-              >
-                <HiOutlineFire className="text-2xl" />
-                <div>
-                  <p className="text-sm text-gray-400">Level</p>
-                  <h3 className="text-2xl font-bold">5</h3>
-                </div>
-              </motion.div>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => router.push('/dashboard')}
-                className="bg-gray-800 p-4 rounded-lg flex items-center gap-3 cursor-pointer hover:bg-purple-700 transition-colors"
+                className="bg-white/10 backdrop-blur-sm text-white font-bold py-4 px-8 rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300 flex items-center gap-3 cursor-pointer"
               >
-                <FaChartLine className="text-2xl text-purple-400" />
-                <div>
-                  <p className="text-sm text-gray-400">Track BMI</p>
-                  <h3 className="text-2xl font-bold">BMI</h3>
-                </div>
-              </motion.div>
-            </div>
+                <FaChartLine /> View Progress
+              </motion.button>
+            </motion.div>
           </div>
-        </motion.div>
 
-        {/* Weather Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-gray-800 p-6 rounded-lg mb-8"
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2">Weather Conditions</h2>
-              <p className="text-gray-400">Check the weather before your workout</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="text-4xl">
-                {weather.icon === 'sunny' ? (
-                  <HiOutlineSun />
-                ) : weather.icon === 'cloudy' ? (
-                  <HiOutlineCloud />
-                ) : (
-                  <HiOutlineBell />
-                )}
-              </div>
-              <div>
-                <h3 className="text-3xl font-bold">{weather.temperature}°C</h3>
-                <p className="text-gray-400">{weather.condition}</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Progress Chart Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-gray-800 p-6 rounded-lg mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-4">Progress Over Time</h2>
-          <div className="h-[300px]">
-            <Line options={progressOptions} data={progressData} />
-          </div>
-        </motion.div>
-
-        {/* Goals Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-gray-800 p-6 rounded-lg mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-6">Your Goals</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Weight Loss</h3>
-              <p className="text-gray-400">Lose 10kg in 3 months</p>
-              <div className="w-full bg-gray-600 rounded-full h-2.5 mt-4">
-                <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: '60%' }}></div>
-              </div>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Strength Gain</h3>
-              <p className="text-gray-400">Increase bench press by 20kg</p>
-              <div className="w-full bg-gray-600 rounded-full h-2.5 mt-4">
-                <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <h3 className="text-xl font-bold mb-2">Endurance</h3>
-              <p className="text-gray-400">Run 5km in under 25 minutes</p>
-              <div className="w-full bg-gray-600 rounded-full h-2.5 mt-4">
-                <div className="bg-purple-500 h-2.5 rounded-full" style={{ width: '50%' }}></div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Community Feed Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-gray-800 p-6 rounded-lg mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-6">Community Feed</h2>
-          <div className="space-y-4">
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/user1.jpg"
-                  alt="User"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <h3 className="font-bold">JohnDoe</h3>
-                  <p className="text-gray-400">Just completed a 5km run!</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <div className="flex items-center gap-3">
-                <img
-                  src="/user2.jpg"
-                  alt="User"
-                  className="w-10 h-10 rounded-full"
-                />
-                <div>
-                  <h3 className="font-bold">JaneSmith</h3>
-                  <p className="text-gray-400">New personal best in deadlift!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Stats Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12"
-        >
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <HiOutlineFire className="text-4xl mb-2" />
-            <h3 className="text-2xl font-bold mb-2">200</h3>
-            <p className="text-gray-400">Total Workouts</p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <HiOutlineCalendar className="text-4xl mb-2" />
-            <h3 className="text-2xl font-bold mb-2">{streak} days</h3>
-            <p className="text-gray-400">Current Streak</p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <HiOutlineUserGroup className="text-4xl mb-2" />
-            <h3 className="text-2xl font-bold mb-2">5</h3>
-            <p className="text-gray-400">Level</p>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <FaChartLine className="text-4xl mb-2" />
-            <h3 className="text-2xl font-bold mb-2">85%</h3>
-            <p className="text-gray-400">Monthly Progress</p>
-          </div>
-        </motion.div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {/* Workout Plan Card */}
+          {/* Coming Soon */}
           <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="text-center mb-16"
           >
-            <div className="flex items-center mb-4">
-              <FaDumbbell className="text-4xl mr-3" />
-              <h2 className="text-2xl font-bold">Workout Plan</h2>
+            <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-8 rounded-2xl border border-white/10 backdrop-blur-sm">
+              <div className="flex justify-center mb-6">
+                <FaClock className="text-4xl text-purple-400 animate-spin-slow" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2">Coming Soon</h3>
+              <p className="text-gray-400">
+                Your personal dashboard with workout stats, progress tracking, and more will be available soon!
+              </p>
             </div>
-            <p className="text-gray-400 mb-4">Your personalized workout schedule for the week.</p>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
-              View Plan
-            </button>
-          </motion.div>
-
-          {/* Progress Tracking Card */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <div className="flex items-center mb-4">
-              <FaChartLine className="text-4xl mr-3" />
-              <h2 className="text-2xl font-bold">Progress Tracking</h2>
-            </div>
-            <p className="text-gray-400 mb-4">Monitor your gains and track your personal bests.</p>
-            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors">
-              View Stats
-            </button>
-          </motion.div>
-
-          {/* Meal Suggestions Card */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="bg-gray-800 p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            <div className="flex items-center mb-4">
-              <FaUtensils className="text-4xl mr-3" />
-              <h2 className="text-2xl font-bold">Meal Suggestions</h2>
-            </div>
-            <p className="text-gray-400 mb-4">Get diet plans and meal ideas to match your goals.</p>
-            <button className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition-colors">
-              Get Meals
-            </button>
           </motion.div>
         </div>
+      </motion.div>
 
-        {/* Motivation Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="bg-gray-800 p-6 rounded-lg text-center mb-8"
-        >
-          <p className="text-xl italic text-gray-400">"{motivationQuote}"</p>
-        </motion.div>
+      <div className="max-w-7xl mx-auto px-6 pb-16">
 
-        {/* Quick Actions Section */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex flex-wrap justify-center gap-4 mb-12"
-        >
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors">
-            Start Workout
-          </button>
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-colors">
-            Log Meal
-          </button>
-          <button className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition-colors">
-            Add Weight
-          </button>
-        </motion.div>
 
-        {/* Logout Button */}
+        {/* Motivational Quote */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full"
+          transition={{ duration: 0.8, delay: 1.8 }}
+          className="text-center bg-gradient-to-br from-purple-500/10 to-blue-500/10 p-12 rounded-3xl border border-white/10 backdrop-blur-sm"
         >
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
-          >
-            Logout
-          </button>
+          <div className="p-4 bg-purple-500/20 rounded-full w-fit mx-auto mb-6">
+            <FaCheckCircle className="text-4xl text-purple-400" />
+          </div>
+          <blockquote className="text-2xl md:text-3xl font-bold text-white mb-4">
+            "The only bad workout is the one that didn't happen."
+          </blockquote>
+          <p className="text-gray-400 text-lg">Keep pushing your limits, {firstName}. Every rep counts!</p>
         </motion.div>
-      </div>
-    </div>
-  );
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        <p className="text-2xl">Loading...</p>
-      </div>
-    );
-  }
-
-  if (status === 'unauthenticated') {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <div className="w-full max-w-4xl">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Welcome, {session?.user?.name || 'User'}!</h1>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Placeholder Card 1: Workout Plan */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Workout Plan</h2>
-            <p>Your personalized workout schedule for the week.</p>
-          </div>
-
-          {/* Placeholder Card 2: Progress Tracking */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Progress Tracking</h2>
-            <p>Monitor your gains and track your personal bests.</p>
-          </div>
-
-          {/* Placeholder Card 3: Meal Suggestions */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Meal Suggestions</h2>
-            <p>Get diet plans and meal ideas to match your goals.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        <p className="text-2xl">Loading...</p>
-      </div>
-    );
-  }
-
-  if (status === 'unauthenticated') {
-    return null; // or a redirect component, but useEffect handles it
-  }
-
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      <div className="w-full max-w-4xl">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold">Welcome, {session?.user?.name || 'User'}!</h1>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
-          >
-            Logout
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Placeholder Card 1: Workout Plan */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Workout Plan</h2>
-            <p>Your personalized workout schedule for the week.</p>
-          </div>
-
-          {/* Placeholder Card 2: Progress Tracking */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Progress Tracking</h2>
-            <p>Monitor your gains and track your personal bests.</p>
-          </div>
-
-          {/* Placeholder Card 3: Meal Suggestions */}
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Meal Suggestions</h2>
-            <p>Get diet plans and meal ideas to match your goals.</p>
-          </div>
-        </div>
       </div>
     </div>
   );

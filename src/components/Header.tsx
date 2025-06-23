@@ -64,9 +64,12 @@ const Header = () => {
                     exit="exit"
                     className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden"
                   >
-                    <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Dashboard</Link>
-                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Profile</Link>
                     <Link href="/home" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Home</Link>
+                    <Link href="/dashboard" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Dashboard</Link>
+                    {session?.user?.role === 'TRAINER' && (
+                      <Link href="/trainer" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Trainer Dashboard</Link>
+                    )}
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors">Profile</Link>
                     <button 
                       onClick={() => signOut({ callbackUrl: '/' })} 
                       className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-purple-600 hover:text-white transition-colors"

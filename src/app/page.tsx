@@ -145,10 +145,10 @@ export default function LandingPage() {
             >
               <p className="text-gray-300 italic">"This app is a game-changer. The workout tracking is so intuitive, and seeing my progress in the charts keeps me motivated every single day."</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User avatar" />
+                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1615109398623-88346a601842?q=80&w=200" alt="User avatar" />
                 <div>
-                  <p className="font-bold text-white">John Doe</p>
-                  <p className="text-sm text-gray-500">Fitness Enthusiast</p>
+                  <p className="font-bold text-white">Rohan Sharma</p>
+                  <p className="text-sm text-gray-500">College Student</p>
                 </div>
               </div>
             </motion.div>
@@ -162,10 +162,10 @@ export default function LandingPage() {
             >
               <p className="text-gray-300 italic">"I've tried many fitness apps, but none have the community feel and goal-setting features of GymApp. I've finally hit my weight loss target!"</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User avatar" />
+                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200" alt="User avatar" />
                 <div>
-                  <p className="font-bold text-white">Jane Smith</p>
-                  <p className="text-sm text-gray-500">Marathon Runner</p>
+                  <p className="font-bold text-white">Priya Patel</p>
+                  <p className="text-sm text-gray-500">Software Engineer</p>
                 </div>
               </div>
             </motion.div>
@@ -179,10 +179,10 @@ export default function LandingPage() {
             >
               <p className="text-gray-300 italic">"As a professional trainer, I recommend this app to all my clients. It's the perfect tool to stay accountable and see real, measurable results."</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/men/86.jpg" alt="User avatar" />
+                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=200" alt="User avatar" />
                 <div>
-                  <p className="font-bold text-white">Mike Johnson</p>
-                  <p className="text-sm text-gray-500">Certified Personal Trainer</p>
+                  <p className="font-bold text-white">Vikram Singh</p>
+                  <p className="text-sm text-gray-500">Certified Fitness Coach</p>
                 </div>
               </div>
             </motion.div>

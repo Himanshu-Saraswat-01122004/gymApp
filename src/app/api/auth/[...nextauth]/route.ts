@@ -6,9 +6,10 @@ import clientPromise from "@/lib/mongoClient"
 import dbConnect from "@/lib/dbConnect"
 import User from "@/models/User"
 import bcrypt from "bcryptjs"
+import { AdapterUser } from "next-auth/adapters"
 
 export const authOptions: AuthOptions = {
-  adapter: MongoDBAdapter(clientPromise, { databaseName: 'gymApp' }),
+  adapter: MongoDBAdapter(clientPromise, { databaseName: 'gymApp' }) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -40,13 +41,14 @@ export const authOptions: AuthOptions = {
         if (!isPasswordCorrect) {
           throw new Error("Incorrect password");
         }
-
+        // console.log(user)
         return {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
           image: user.image,
-        };
+          role: user.role,
+        } as any;
       }
     })
   ],
@@ -61,6 +63,7 @@ export const authOptions: AuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = user.role;
       }
       console.log("JWT Callback", { token });
       return token;
@@ -68,6 +71,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as 'USER' | 'TRAINER';
       }
       console.log("Session Callback", { session });
       return session;

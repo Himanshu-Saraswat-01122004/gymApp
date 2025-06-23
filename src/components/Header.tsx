@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { FaDumbbell, FaUserCircle, FaChevronDown, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
+import { FaDumbbell, FaUserCircle, FaChevronDown, FaSignInAlt, FaUserPlus, FaImages } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
@@ -38,10 +38,18 @@ const Header = () => {
   return (
     <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-gray-900/80 backdrop-blur-md shadow-lg' : 'bg-transparent'}`}>
       <div className="container mx-auto flex justify-between items-center p-4 text-white">
-        <Link href="/" className="flex items-center space-x-3 text-2xl font-bold text-purple-400 hover:text-purple-300 transition-colors">
-          <FaDumbbell className="transform hover:rotate-[-15deg] transition-transform" />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">Royal Fitness</span>
-        </Link>
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center space-x-3 text-2xl font-bold text-purple-400 hover:text-purple-300 transition-colors">
+            <FaDumbbell className="transform hover:rotate-[-15deg] transition-transform" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-500">Royal Fitness</span>
+          </Link>
+          <div className="hidden md:block">
+            <Link href="/gallery" className="flex items-center gap-2 text-gray-300 hover:text-white hover:bg-purple-600/50 border border-transparent hover:border-purple-500 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300">
+              <FaImages />
+              <span className="font-semibold">Gallery</span>
+            </Link>
+          </div>
+        </div>
         <nav className="space-x-2 flex items-center">
           {status === 'loading' ? (
             <div className="w-36 h-9 bg-gray-700/50 rounded-lg animate-pulse"></div>

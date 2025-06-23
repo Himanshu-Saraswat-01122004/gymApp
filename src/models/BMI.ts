@@ -28,7 +28,8 @@ const bmiSchema = new Schema<BMIDocument>({
     },
     timestamp: {
       type: Date,
-      default: Date.now
+      default: Date.now,
+      required: true
     }
   }]
 }, {

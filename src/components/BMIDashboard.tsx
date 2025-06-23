@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
-import { FaWeight } from 'react-icons/fa';
+import { FaWeight, FaChartLine, FaUserCircle, FaTrophy } from 'react-icons/fa';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, TimeScale } from 'chart.js';
 // import { TooltipItem } from 'chart.js/types/basic';
@@ -30,6 +30,9 @@ export default function BMIDashboard() {
   const [weight, setWeight] = useState('');
   const [bmiData, setBmiData] = useState<any[]>([]);
   const [height, setHeight] = useState<number | null>(null);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     fetchBMIData();
@@ -48,13 +51,27 @@ export default function BMIDashboard() {
 
   const handleWeightSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!weight) return;
+    if (!weight) {
+      setError('Please enter your weight');
+      return;
+    }
+
+    const weightNumber = parseFloat(weight);
+    if (isNaN(weightNumber) || weightNumber <= 0) {
+      setError('Please enter a valid weight (greater than 0)');
+      return;
+    }
+
+    setError('');
+    setSuccess('');
 
     try {
-      await axios.post('/api/bmi', { weight: parseFloat(weight) });
+      await axios.post('/api/bmi', { weight: weightNumber });
       setWeight('');
+      setSuccess('Weight added successfully!');
       fetchBMIData();
     } catch (error) {
+      setError('Error adding weight entry. Please try again.');
       console.error('Error adding weight entry:', error);
     }
   };
@@ -79,17 +96,22 @@ export default function BMIDashboard() {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
         labels: {
-          color: '#fff'
+          color: '#fff',
+          fontSize: 14
         }
       },
       title: {
         display: true,
         text: 'BMI Progress Over Time',
-        color: '#fff'
+        color: '#fff',
+        font: {
+          size: 18
+        }
       },
       tooltip: {
         enabled: true,
@@ -161,50 +183,129 @@ export default function BMIDashboard() {
   }, [bmiData, height]);
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
+    <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl shadow-lg border border-gray-700">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">BMI Tracker</h2>
         <div className="flex items-center gap-2">
-          <FaWeight className="text-2xl text-purple-400" />
-          <span className="text-gray-400">Track your BMI progress</span>
+          <FaWeight className="text-3xl text-purple-400" />
+          <h2 className="text-2xl font-bold text-white">BMI Tracker</h2>
         </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2 text-gray-400"
+        >
+          <span>Track your BMI progress</span>
+          <FaChartLine className="text-lg text-purple-400" />
+        </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] gap-8">
         {/* Weight Input Form */}
-        <div className="bg-gray-700 p-6 rounded-lg">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-gradient-to-br from-gray-700 to-gray-800 p-6 rounded-2xl shadow-xl border border-gray-600"
+        >
+          <div className="text-center mb-4">
+            <motion.div 
+              whileHover={{ scale: 1.1 }}
+              className="text-3xl text-purple-400 mb-2"
+            >
+              <FaWeight />
+            </motion.div>
+            <h3 className="text-xl font-semibold text-white mb-2">Add Your Weight</h3>
+            <motion.p 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-gray-400 text-sm"
+            >
+              Track your progress by adding your current weight
+            </motion.p>
+          </div>
+          
           <form onSubmit={handleWeightSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Current Weight (kg)</label>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500"
-                placeholder="Enter weight in kg"
-                required
-              />
+              <label className="block text-sm text-gray-400 mb-1">Current Weight (kg)</label>
+              <div className="relative">
+                <motion.input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-md bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-200"
+                  placeholder="Enter weight in kg"
+                  required
+                  min="0"
+                  step="0.1"
+                  whileFocus={{ scale: 1.02 }}
+                />
+                <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">kg</span>
+              </div>
+              {error && (
+                <motion.p 
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-1 text-sm text-red-500"
+                >
+                  {error}
+                </motion.p>
+              )}
+              {success && (
+                <motion.p 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-1 text-sm text-green-500"
+                >
+                  {success}
+                </motion.p>
+              )}
             </div>
-            <button
+            <motion.button
               type="submit"
-              className="w-full px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="w-full px-4 py-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-md hover:from-purple-700 hover:to-purple-800 transition-all duration-300 text-sm font-medium shadow-md hover:shadow-lg"
+              disabled={error !== ''}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Add Weight Entry
-            </button>
+              {error ? 'Fix Error' : 'Add Weight'}
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
 
         {/* BMI Chart */}
-        <div className="bg-gray-700 p-6 rounded-lg">
-          <h3 className="text-xl font-bold mb-4">BMI Progress</h3>
-          <div className="h-[300px]">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl shadow-xl border border-gray-700"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-white">BMI Progress</h2>
+            <motion.div 
+              whileHover={{ scale: 1.1 }}
+              className="text-2xl text-purple-400"
+            >
+              <FaChartLine />
+            </motion.div>
+          </div>
+          <div className="h-[400px]">
             {bmiData.length > 0 ? (
-              <Line options={chartOptions} data={chartData} />
+              <Line
+                data={chartData}
+                options={chartOptions}
+              />
             ) : (
-              <p className="text-center text-gray-400">No data yet. Add your first weight entry!</p>
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center text-gray-400"
+              >
+                No data yet. Add your first weight entry!
+              </motion.p>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

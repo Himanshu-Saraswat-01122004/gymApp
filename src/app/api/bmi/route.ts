@@ -10,35 +10,36 @@ await dbConnect();
 
 export async function POST(request: Request) {
   try {
+    const { weight } = await request.json();
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const { weight } = await request.json();
     const userId = session.user.id;
-
-    // Find or create BMI document
     let bmiDoc = await BMI.findOne({ userId });
+
     if (!bmiDoc) {
-      const user = await mongoose.model('User').findById(userId);
+      // Get user's height from User model
+      const user = await UserModel.findById(userId);
       if (!user || !user.height) {
         return NextResponse.json({ error: 'User height not found' }, { status: 400 });
       }
+
       bmiDoc = new BMI({ userId, height: user.height });
     }
 
-    // Add new weight entry
-    bmiDoc.weightEntries.push({ weight });
+    // Add new weight entry with current timestamp
+    bmiDoc.weightEntries.push({
+      weight,
+      timestamp: new Date()
+    });
     await bmiDoc.save();
 
     return NextResponse.json({ message: 'Weight entry added successfully' });
   } catch (error) {
     console.error('Error adding weight entry:', error);
-    return NextResponse.json({ 
-      error: error instanceof Error ? error.message : 'Failed to add weight entry',
-      status: 500 
-    });
+    return NextResponse.json({ error: 'Failed to add weight entry' }, { status: 500 });
   }
 }
 

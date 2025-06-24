@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import WelcomeHeader from './components/WelcomeHeader';
 import ComingSoon from './components/ComingSoon';
 import MotivationalQuote from './components/MotivationalQuote';

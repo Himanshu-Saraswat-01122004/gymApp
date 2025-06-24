@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import BMI from '@/models/BMI';
-import mongoose from 'mongoose';
+
 import  UserModel  from '@/models/User';
 
 await dbConnect();

@@ -20,7 +20,7 @@ const MotivationalQuote: React.FC<MotivationalQuoteProps> = ({ firstName }) => {
         <FaCheckCircle className="text-4xl text-purple-400" />
       </div>
       <blockquote className="text-2xl md:text-3xl font-bold text-white mb-4">
-        "The only bad workout is the one that didn't happen."
+        &quot;The only bad workout is the one that didn&apos;t happen.&quot;
       </blockquote>
       <p className="text-gray-400 text-lg">Keep pushing your limits, {firstName}. Every rep counts!</p>
     </motion.div>

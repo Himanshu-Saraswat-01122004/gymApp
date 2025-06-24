@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, TimeScale } from 'chart.js';
+import { Chart as ChartJS, LineController, LineElement, PointElement, LinearScale, Title, CategoryScale, TimeScale, Tooltip, Legend, ChartOptions, TooltipItem } from 'chart.js';
 import { FaChartLine } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -14,7 +14,9 @@ ChartJS.register(
   LinearScale,
   Title,
   CategoryScale,
-  TimeScale
+  TimeScale,
+  Tooltip,
+  Legend
 );
 
 interface BMIEntry {
@@ -62,7 +64,7 @@ export default function BMIAnalysis({ bmiData, height }: BMIAnalysisProps) {
     ]
   };
 
-  const chartOptions = {
+  const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -70,7 +72,9 @@ export default function BMIAnalysis({ bmiData, height }: BMIAnalysisProps) {
         position: 'top' as const,
         labels: {
           color: '#fff',
-          fontSize: 14
+          font: {
+            size: 14
+          }
         }
       },
       title: {
@@ -86,11 +90,11 @@ export default function BMIAnalysis({ bmiData, height }: BMIAnalysisProps) {
         mode: 'index',
         intersect: false,
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<'line'>) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
-            const bmi = parseFloat(value);
-            const category = getBMICategory(bmi);
+            if (value === null) return label;
+            const category = getBMICategory(value);
             return `${label}: ${value.toFixed(3)} (${category})`;
           }
         }
@@ -118,7 +122,7 @@ export default function BMIAnalysis({ bmiData, height }: BMIAnalysisProps) {
         },
         grid: {
           color: '#444',
-          drawBorder: true
+
         }
       },
       x: {
@@ -135,11 +139,11 @@ export default function BMIAnalysis({ bmiData, height }: BMIAnalysisProps) {
         },
         grid: {
           color: '#444',
-          drawBorder: true
+
         }
       }
     }
-  } as any;
+  };
 
   return (
     <motion.div 

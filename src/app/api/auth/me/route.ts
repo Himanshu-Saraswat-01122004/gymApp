@@ -49,8 +49,11 @@ export async function GET(request:NextRequest){
             mesaaage: "User found",
             data: user
         })
-    } catch (error:any) {
-        return NextResponse.json({error: error.message}, {status: 400});
+        } catch (error: unknown) {
+        if (error instanceof Error) {
+            return NextResponse.json({ error: error.message }, { status: 400 });
+        }
+        return NextResponse.json({ error: "An unknown error occurred" }, { status: 400 });
     }
 
 }

@@ -43,7 +43,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ greeting, firstName }) =>
         transition={{ duration: 0.8, delay: 0.6 }}
         className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed"
       >
-        Ready to crush your fitness goals? Let's make today count with an amazing workout session!
+        Ready to crush your fitness goals? Let&apos;s make today count with an amazing workout session!
       </motion.p>
       
       <motion.div
@@ -57,7 +57,7 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ greeting, firstName }) =>
           whileTap={{ scale: 0.95 }}
           className="bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 px-8 rounded-xl hover:from-purple-700 hover:to-blue-700 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-purple-500/25"
         >
-          <FaPlay /> Start Today's Workout
+          <FaPlay /> Start Today&apos;s Workout
         </motion.button>
         
         <motion.button

@@ -104,7 +104,7 @@ export default function TrainerPage() {
               </p>
             )}
           </div>
-          <p className="text-lg text-gray-400 mt-2">Monitor all users' BMI progress.</p>
+          <p className="text-lg text-gray-400 mt-2">Monitor all users&apos; BMI progress.</p>
         </motion.div>
         
         <motion.div 
@@ -134,7 +134,7 @@ export default function TrainerPage() {
         >
           <label htmlFor="user-select" className="flex items-center text-lg font-medium text-gray-300 mb-2">
             <FaUsers className="mr-2 text-purple-400" />
-            View a Specific User's Data
+            View a Specific User&apos;s Data
           </label>
           <select
             id="user-select"

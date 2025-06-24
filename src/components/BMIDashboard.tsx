@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
-import { FaWeight, FaUserCircle, FaTrophy } from 'react-icons/fa';
+import { FaWeight, FaTrophy } from 'react-icons/fa';
 import axios from 'axios';
 import BMIAnalysis from './BMIAnalysis';
 
@@ -13,13 +13,11 @@ interface BMIEntry {
 }
 
 export default function BMIDashboard() {
-  const { data: session } = useSession();
+  useSession();
   const [weight, setWeight] = useState('');
-  const [bmiData, setBmiData] = useState<any[]>([]);
+  const [bmiData, setBmiData] = useState<BMIEntry[]>([]);
   const [height, setHeight] = useState<number | null>(null);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     fetchBMIData();
@@ -50,12 +48,10 @@ export default function BMIDashboard() {
     }
 
     setError('');
-    setSuccess('');
 
     try {
       await axios.post('/api/bmi', { weight: weightNumber });
       setWeight('');
-      setSuccess('Weight added successfully!');
       fetchBMIData();
     } catch (error) {
       setError('Error adding weight entry. Please try again.');

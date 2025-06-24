@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaChartLine } from 'react-icons/fa';
 import BMIDashboard from '@/components/BMIDashboard';
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+    const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

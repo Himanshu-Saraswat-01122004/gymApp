@@ -13,7 +13,9 @@ import {
   TimeScale,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  ChartOptions,
+  TooltipItem
 } from 'chart.js';
 
 // Register necessary Chart.js components
@@ -89,7 +91,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ usersBMIData }) => {
   }, [usersBMIData]);
 
   // Memoize chart options
-  const chartOptions = useMemo(() => ({
+  const chartOptions = useMemo((): ChartOptions<'line'> => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -130,7 +132,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ usersBMIData }) => {
         padding: 12,
         boxPadding: 4,
         callbacks: {
-          label: function(context: any) {
+          label: function(context: TooltipItem<'line'>) {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             if (value === null) return label;
@@ -149,7 +151,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ usersBMIData }) => {
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.08)',
-          drawBorder: false,
+
         }
       },
       x: {
@@ -158,7 +160,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ usersBMIData }) => {
         },
         grid: {
           color: 'rgba(255, 255, 255, 0.08)',
-          drawBorder: false,
+
         }
       }
     }
@@ -173,7 +175,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ usersBMIData }) => {
     );
   }
 
-  return <Line data={chartData} options={chartOptions as any} />;
+  return <Line data={chartData} options={chartOptions} />;
 };
 
 export default ChartComponent;

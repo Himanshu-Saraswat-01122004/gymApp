@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaArrowRight, FaDumbbell, FaChartLine, FaTrophy } from 'react-icons/fa';
+import Image from 'next/image';
 import ParticlesComponent from '@/components/ParticlesComponent';
 
 export default function LandingPage() {
@@ -143,9 +144,9 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="bg-gray-900 p-8 rounded-lg shadow-lg"
             >
-              <p className="text-gray-300 italic">"This app is a game-changer. The workout tracking is so intuitive, and seeing my progress in the charts keeps me motivated every single day."</p>
+              <p className="text-gray-300 italic">&quot;This app is a game-changer. The workout tracking is so intuitive, and seeing my progress in the charts keeps me motivated every single day.&quot;</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1615109398623-88346a601842?q=80&w=200" alt="User avatar" />
+                <Image className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1615109398623-88346a601842?q=80&w=200" alt="User avatar" width={48} height={48} />
                 <div>
                   <p className="font-bold text-white">Rohan Sharma</p>
                   <p className="text-sm text-gray-500">College Student</p>
@@ -160,9 +161,9 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="bg-gray-900 p-8 rounded-lg shadow-lg"
             >
-              <p className="text-gray-300 italic">"I've tried many fitness apps, but none have the community feel and goal-setting features of GymApp. I've finally hit my weight loss target!"</p>
+              <p className="text-gray-300 italic">&quot;I&apos;ve tried many fitness apps, but none have the community feel and goal-setting features of GymApp. I&apos;ve finally hit my weight loss target!&quot;</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200" alt="User avatar" />
+                <Image className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200" alt="User avatar" width={48} height={48} />
                 <div>
                   <p className="font-bold text-white">Priya Patel</p>
                   <p className="text-sm text-gray-500">Software Engineer</p>
@@ -177,9 +178,9 @@ export default function LandingPage() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="bg-gray-900 p-8 rounded-lg shadow-lg"
             >
-              <p className="text-gray-300 italic">"As a professional trainer, I recommend this app to all my clients. It's the perfect tool to stay accountable and see real, measurable results."</p>
+              <p className="text-gray-300 italic">&quot;As a professional trainer, I recommend this app to all my clients. It&apos;s the perfect tool to stay accountable and see real, measurable results.&quot;</p>
               <div className="flex items-center mt-4">
-                <img className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=200" alt="User avatar" />
+                <Image className="w-12 h-12 rounded-full mr-4 object-cover" src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=200" alt="User avatar" width={48} height={48} />
                 <div>
                   <p className="font-bold text-white">Vikram Singh</p>
                   <p className="text-sm text-gray-500">Certified Fitness Coach</p>
